@@ -1,127 +1,152 @@
-# 🚀 Prueba Técnica - Clon de eTicket.co con React y Firebase
+# 🎫 Clon de eTicket - Proyecto de Práctica con React y Firebase
 
-Bienvenida 👋  
-Este es un reto práctico para comenzar tu integración al equipo de desarrollo. El objetivo es replicar la estructura y funcionalidad visual básica del sitio [eticket.co](https://www.eticket.co) usando **React** para el frontend y **Firebase** para el backend (base de datos y hosting).
+## 📝 Descripción General
+Este proyecto tiene como objetivo replicar el diseño básico de [eticket.co](https://www.eticket.co) utilizando React y Firebase. Se implementará una estructura de carpetas profesional (frontend/backend) y operaciones CRUD básicas en Firestore.
 
----
+## 🛠️ Tecnologías Utilizadas
+- **Frontend:** React + Vite
+- **Backend:** Firebase (Firestore + Hosting)
+- **Control de Versiones:** Git y GitHub
+- **Node.js:** v16+ recomendada
+- **Concurrently:** Para ejecutar frontend y backend simultáneamente
 
-## 🎯 Objetivos
+## ✨ Características a Implementar
 
-- Practicar desarrollo con **React**.
-- Aprender cómo integrar y usar **Firebase**:
-  - Firebase Hosting
-  - Firestore (Base de datos)
-- Aplicar buenas prácticas de organización de archivos y componentes en React.
-
----
-
-## 📋 Requisitos
-
-### Tecnologías
-
-- React + Vite
-- Firebase (Hosting + Firestore)
-- Git y GitHub
-- [Node.js](https://nodejs.org/) (versión 16+ recomendada)
-- Editor de código (VS Code sugerido)
-
----
-
-## 🧩 Qué debe incluir el clon
-
-> No es necesario replicar toda la funcionalidad dinámica. En esta etapa es una maqueta visual con integración básica a Firestore.
-
-### 1. Estructura visual
-
-- Barra de navegación superior
+### 🔷 Frontend (React)
+- Barra de navegación
 - Carrusel/banner principal
-- Sección de eventos (puede ser estática o dinámica desde Firestore)
-- Footer
+- Sección de eventos
+- Pie de página
+- Diseño responsivo
+- Panel de administración (CRUD eventos)
+- Estados de carga y manejo de errores
 
-### 2. Firebase
+### 🔶 Backend (Firebase)
+- Conexión a Firestore
+- Colección `eventos` con operaciones CRUD:
+  - **C**rear: Agregar eventos nuevos
+  - **R**ead: Mostrar listado de eventos
+  - **U**pdate: Modificar eventos existentes
+  - **D**elete: Eliminar eventos
+- Despliegue en Firebase Hosting
 
-- Conectar el proyecto a Firebase
-- Crear una colección en Firestore llamada `eventos`
-- Mostrar los datos de `eventos` en la página principal (título, fecha, ciudad, imagen, etc.)
+## 📁 Estructura de Carpetas
+```
+Replica-eTicket-Prueba/
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── atoms/      # Botones, inputs, etc
+│   │   │   ├── molecules/  # Cards, formularios
+│   │   │   └── organisms/  # Navbar, EventList
+│   │   ├── pages/
+│   │   ├── firebase/
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   └── vite.config.js
+├── backend/
+├── .env
+└── package.json
+```
 
-### 3. Hosting
+## 🚀 Instalación y Configuración
 
-- Deploy del sitio usando Firebase Hosting
-- Compartir la URL al finalizar
-
----
-
-## 🛠️ Instrucciones
-
-### 1. Clona este repositorio
-
+### 1. Clonar e Instalar Dependencias
 ```bash
-git clone https://github.com/TU_USUARIO/eticket-clone.git
-cd eticket-clone
-2. Crea el proyecto en Firebase
-Ve a https://console.firebase.google.com
-
-Crea un nuevo proyecto
-
-Habilita Firestore Database
-
-Habilita Firebase Hosting
-
-3. Configura el entorno local
-bash
-Copiar
-Editar
+git clone git@github.com:MiguelLoaizaDev/Replica-eTicket-Prueba.git
+cd Replica-eTicket-Prueba
 npm install
-Crea un archivo .env en la raíz y añade las variables de tu Firebase config:
+cd frontend
+npm install
+```
 
-env
-Copiar
-Editar
-VITE_FIREBASE_API_KEY=your_key
-VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=your_project_id
-VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-VITE_FIREBASE_MESSAGING_SENDER_ID=sender_id
-VITE_FIREBASE_APP_ID=app_id
-4. Ejecuta en local
-bash
-Copiar
-Editar
+### 2. Configuración de Firebase
+1. Ve a [Firebase Console](https://console.firebase.google.com)
+2. Crea un nuevo proyecto
+3. Configura Firestore:
+   ```javascript
+   // frontend/src/firebase/firebaseConfig.js
+   import { initializeApp } from "firebase/app";
+   import { getFirestore } from "firebase/firestore";
+
+   const firebaseConfig = {
+     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+     authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+     projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+     storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+     messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+     appId: import.meta.env.VITE_FIREBASE_APP_ID
+   };
+
+   const app = initializeApp(firebaseConfig);
+   const db = getFirestore(app);
+
+   export { db };
+   ```
+
+### 3. Configuración de Eventos CRUD
+```javascript
+// frontend/src/firebase/eventosService.js
+import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { db } from './firebaseConfig';
+
+// Crear evento
+export const crearEvento = async (eventoData) => {
+  try {
+    const docRef = await addDoc(collection(db, "eventos"), eventoData);
+    return docRef.id;
+  } catch (error) {
+    console.error("Error al crear evento:", error);
+    throw error;
+  }
+};
+
+// Obtener eventos
+export const obtenerEventos = async () => {
+  const querySnapshot = await getDocs(collection(db, "eventos"));
+  return querySnapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  }));
+};
+```
+
+### 4. Desarrollo
+```bash
+# Desde la raíz del proyecto
 npm run dev
-5. Deploy en Firebase
-bash
-Copiar
-Editar
-npm run build
+```
+
+### 5. Despliegue
+```bash
+cd frontend
 firebase login
 firebase init
+npm run build
 firebase deploy
-✅ Criterios de entrega
-Página funcional con estructura similar a eticket.co
+```
 
-Conexión con Firestore para mostrar los eventos
+## ✅ Entregables y Criterios
+- [ ] Página principal con eventos desde Firestore
+- [ ] Panel de administración CRUD funcional
+- [ ] Estructura frontend/backend implementada
+- [ ] Despliegue en Firebase Hosting
+- [ ] Manejo de estados de carga y errores
+- [ ] Diseño atómico implementado
 
-Deploy exitoso en Firebase Hosting
+## 💡 Buenas Prácticas
+- Usar Atomic Design para componentes
+- Implementar estructura de archivos ordenada
+- Manejar estados de carga y errores
+- Modularizar servicios de Firebase
+- Usar variables de entorno
+- Documentar funciones principales
 
-Buenas prácticas de código y organización de componentes
-
-💡 Tips
-Puedes usar componentes como <Navbar />, <EventList />, <Footer /> para estructurar tu proyecto.
-
-Usa useEffect para obtener los datos desde Firestore.
-
-No te compliques con funcionalidades avanzadas, enfócate en la estructura general y conexión con Firebase.
-
-📅 Plazo sugerido
-No hay límite estricto, pero se recomienda completarlo en máximo 5-7 días. ¡Tómatelo como una oportunidad de aprendizaje! 💪
-
-🙌 ¡Éxito!
-No dudes en escribir si tienes preguntas o te atoras en algo. Esto es para que aprendas y te familiarices con las herramientas que usamos día a día.
-
-yaml
-Copiar
-Editar
-
----
-
-¿Quieres que también le añada un ejemplo base del `firebaseConfig.js` o alguna plantilla inicial con Vite y Firebase ya c
+## ⏰ Tiempo Estimado
+- **Duración:** 5 días
+- **Prioridades:**
+  1. Configuración inicial y estructura
+  2. Lectura de eventos (READ)
+  3. Operaciones CRUD restantes
+  4. Mejoras de UI/UX
+  5. Despliegue final
